@@ -30,7 +30,7 @@ class MessagesList extends Component {
         }}  
       >
         <ul style={styles.ul}>
-          {this.props.messages.mpa((message, index) => (
+          {this.props.messages.map((message, index) => (
             <li key={index} style={styles.li}>
               <div>
                 <span style={styles.senderUsername}>{message.senderId}</span>{' '}
