@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 class MessagesList extends Component {
   render() {
-    const styles ={
+    const styles = {
       container: {
         overflowY: 'scroll',
         flex: 1,
