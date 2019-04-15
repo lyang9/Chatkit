@@ -7,7 +7,7 @@ class SendMessageForm extends Component {
       text: '',
     }
     this.onSubmit = this.onSubmit.bind(this)
-    this.onSubmit = this.onChange.bind(this)
+    this.onChange = this.onChange.bind(this)
   }
 
   onSubmit(e) {
