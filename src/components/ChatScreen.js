@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import Chatkit from '@pusher/chatkit-client';
+import { ChatManager, TokenProvider } from '@pusher/chatkit-client';
 import MessageList from './MessageList';
 import SendMessageForm from './SendMessageForm';
+import TypingIndicator from './TypingIndicator';
 
 class ChatScreen extends Component {
   constructor(props) {
@@ -9,9 +10,11 @@ class ChatScreen extends Component {
     this.state = {
       currentUser: {},
       currentRoom: {},
-      messages: []
+      messages: [],
+      usersWhoAreTyping: [],
     }
     this.sendMessage = this.sendMessage.bind(this)
+    this.sendTypingEvent = this.sendTypingEvent.bind(this)
   }
 
   sendMessage(text) {
@@ -21,11 +24,17 @@ class ChatScreen extends Component {
     })
   }
 
+  sendTypingEvent() {
+    this.state.currentUser
+      .isTypingIn({ roomId: this.state.currentRoom.id })
+      .catch(error => console.error('error', error))
+  }
+
   componentDidMount() {
-    const chatManager = new Chatkit.ChatManager({
+    const chatManager = new ChatManager({
       instanceLocator: 'v1:us1:566b995c-0276-46fe-8b2f-1e69e0893135',
       userId: this.props.currentUsername,
-      tokenProvider: new Chatkit.TokenProvider({
+      tokenProvider: new TokenProvider({
         url: 'http://localhost:8000/authenticate',
       }),
     })
@@ -33,14 +42,29 @@ class ChatScreen extends Component {
     chatManager
       .connect()
       .then(currentUser => {
+        console.log('Successful connection', currentUser )
         this.setState({ currentUser })
-        return currentUser.subscribeToRoom({
+        return currentUser.subscribeToRoomMultipart({
           roomId: '19390834',
           messageLimit: 100,
           hooks: {
-            onNewMessage: message => {
+            onMessage: message => {
+              console.log('received message', message)
               this.setState({
                 messages: [...this.state.messages, message],
+              })
+            },
+            onUserStartedTyping: user => {
+              console.log(`User ${user.name} started typing`)
+              this.setState({
+                usersWhoAreTyping: [...this.state.usersWhoAreTyping, user.name],
+              })
+            },
+            onUserStoppedTyping: user => {
+              this.setState({
+                usersWhoAreTyping: this.state.usersWhoAreTyping.filter(
+                  username => username !== user.name 
+                ),
               })
             },
           },
@@ -89,7 +113,11 @@ class ChatScreen extends Component {
               messages={this.state.messages}
               style={styles.chatList}
             />
-            <SendMessageForm onSubmit={this.sendMessage} />
+            <TypingIndicator usersWhoAreTyping={this.state.usersWhoAreTyping} />
+            <SendMessageForm 
+              onSubmit={this.sendMessage} 
+              onChange={this.sendTypingEvent}
+            />
           </section>
         </div>
       </div>
