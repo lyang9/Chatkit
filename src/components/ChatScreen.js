@@ -3,6 +3,7 @@ import { ChatManager, TokenProvider } from '@pusher/chatkit-client';
 import MessageList from './MessageList';
 import SendMessageForm from './SendMessageForm';
 import TypingIndicator from './TypingIndicator';
+import WhosOnlineList from './WhosOnlineList';
 
 class ChatScreen extends Component {
   constructor(props) {
@@ -67,6 +68,9 @@ class ChatScreen extends Component {
                 ),
               })
             },
+            onUserCameOnline: () => this.forceUpdate(),
+            onUserWentOffline: () => this.forceUpdate(),
+            onUserJoined: () => this.forceUpdate(),
           },
         })
       })
@@ -106,7 +110,10 @@ class ChatScreen extends Component {
       <div style={styles.container}>
         <div style={styles.chatContainer}>
           <aside style={styles.whosOnlineListContainer}>
-            <h2>Who's online PLACEHOLDER</h2>
+            <WhosOnlineList
+              currentUser={this.state.currentUser}
+              users={this.state.currentRoom.users}
+            />
           </aside>
           <section style={styles.chatListContainer}>
             <MessageList
