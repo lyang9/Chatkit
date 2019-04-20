@@ -62,6 +62,7 @@ class ChatScreen extends Component {
               })
             },
             onUserStoppedTyping: user => {
+              console.log(`User ${user.name} stopped typing`)
               this.setState({
                 usersWhoAreTyping: this.state.usersWhoAreTyping.filter(
                   username => username !== user.name 
